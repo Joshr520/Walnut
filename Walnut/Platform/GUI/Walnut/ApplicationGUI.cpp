@@ -45,7 +45,7 @@ extern bool g_ApplicationRunning;
 #define IMGUI_VULKAN_DEBUG_REPORT
 #endif
 
-static VkAllocationCallbacks* g_Allocator = NULL;
+static VkAllocationCallbacks*   g_Allocator = NULL;
 static VkInstance               g_Instance = VK_NULL_HANDLE;
 static VkPhysicalDevice         g_PhysicalDevice = VK_NULL_HANDLE;
 static VkDevice                 g_Device = VK_NULL_HANDLE;
@@ -70,6 +70,8 @@ static uint32_t s_CurrentFrameIndex = 0;
 static std::unordered_map<std::string, ImFont*> s_Fonts;
 
 static Walnut::Application* s_Instance = nullptr;
+
+static WNDPROC g_OriginalWndProc;
 
 void check_vk_result(VkResult err)
 {
@@ -346,7 +348,8 @@ static void FrameRender(ImGui_ImplVulkanH_Window* wd, ImDrawData* draw_data)
 	}
 
 	// Record dear imgui primitives into command buffer
-	ImGui_ImplVulkan_RenderDrawData(draw_data, fd->CommandBuffer);
+	if (draw_data)
+		ImGui_ImplVulkan_RenderDrawData(draw_data, fd->CommandBuffer);
 
 	// Submit command buffer
 	vkCmdEndRenderPass(fd->CommandBuffer);
@@ -395,6 +398,46 @@ static void glfw_error_callback(int error, const char* description)
 {
 	fprintf(stderr, "Glfw Error %d: %s\n", error, description);
 }
+
+// Callbacks for key/button presses to assign and trigger keybinds
+static void glfw_key_callback(GLFWwindow* window, int key, int scancode, int action, int mods) {
+	auto&& func = Walnut::Application::Get().GetKeyCallback();
+	if (func)
+		func(key, scancode, action, mods);
+}
+
+static void glfw_mouse_button_callback(GLFWwindow* window, int button, int action, int mods) {
+	auto&& func = Walnut::Application::Get().GetMouseButtonCallback();
+	if (func)
+		func(button, action, mods);
+}
+
+#if defined(WL_PLATFORM_WINDOWS) && !defined(WL_HEADLESS)
+
+#include <hidusage.h>
+#define GLFW_EXPOSE_NATIVE_WIN32
+#include <GLFW/glfw3native.h>
+
+LRESULT CALLBACK RawInputWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
+{
+	if (msg == WM_INPUT)
+	{
+		UINT dwSize = 0;
+		GetRawInputData(reinterpret_cast<HRAWINPUT>(lParam), RID_INPUT, NULL, &dwSize, sizeof(RAWINPUTHEADER));
+		std::vector<BYTE> lpb(dwSize);
+		if (GetRawInputData(reinterpret_cast<HRAWINPUT>(lParam), RID_INPUT, lpb.data(), &dwSize, sizeof(RAWINPUTHEADER)) == dwSize)
+		{
+			RAWINPUT* raw = reinterpret_cast<RAWINPUT*>(lpb.data());
+			auto&& func = Walnut::Application::Get().GetRawInputCallback();
+			if (func)
+				func(raw);
+		}
+	}
+
+	return CallWindowProc(g_OriginalWndProc, hwnd, msg, wParam, lParam);
+}
+
+#endif
 
 namespace Walnut {
 
@@ -455,6 +498,28 @@ namespace Walnut {
 
 		m_WindowHandle = glfwCreateWindow(m_Specification.Width, m_Specification.Height, m_Specification.Name.c_str(), NULL, NULL);
 
+		// Set key/button callbacks early so ImGui handles them correctly
+		glfwSetKeyCallback(m_WindowHandle, glfw_key_callback);
+		glfwSetMouseButtonCallback(m_WindowHandle, glfw_mouse_button_callback);
+
+#if defined(WL_PLATFORM_WINDOWS) && !defined(WL_HEADLESS)
+
+		HWND hwnd = glfwGetWin32Window(m_WindowHandle);
+
+		RAWINPUTDEVICE rid;
+		rid.usUsagePage = HID_USAGE_PAGE_GENERIC;
+		rid.usUsage = HID_USAGE_GENERIC_MOUSE;
+		rid.dwFlags = RIDEV_INPUTSINK;
+		rid.hwndTarget = hwnd;
+		RegisterRawInputDevices(&rid, 1, sizeof(rid));
+		rid.usUsage = HID_USAGE_GENERIC_KEYBOARD;
+		RegisterRawInputDevices(&rid, 1, sizeof(rid));
+
+		g_OriginalWndProc = (WNDPROC)GetWindowLongPtr(hwnd, GWLP_WNDPROC);
+		SetWindowLongPtr(hwnd, GWLP_WNDPROC, reinterpret_cast<LONG_PTR>(RawInputWndProc));
+
+#endif
+
 		if (m_Specification.CenterWindow)
 		{
 			glfwSetWindowPos(m_WindowHandle,
@@ -463,8 +528,6 @@ namespace Walnut {
 
 			glfwSetWindowAttrib(m_WindowHandle, GLFW_RESIZABLE, m_Specification.WindowResizeable ? GLFW_TRUE : GLFW_FALSE);
 		}
-		
-		glfwShowWindow(m_WindowHandle);
 
 		// Setup Vulkan
 		if (!glfwVulkanSupported())
@@ -629,6 +692,15 @@ namespace Walnut {
 			free(data);
 		}
 
+		// Set darker clear color and show window later to not flashbang users
+		wd->ClearValue.color.float32[0] = style.Colors[ImGuiCol_WindowBg].x * style.Colors[ImGuiCol_WindowBg].w;
+		wd->ClearValue.color.float32[1] = style.Colors[ImGuiCol_WindowBg].y * style.Colors[ImGuiCol_WindowBg].w;
+		wd->ClearValue.color.float32[2] = style.Colors[ImGuiCol_WindowBg].z * style.Colors[ImGuiCol_WindowBg].w;
+		wd->ClearValue.color.float32[3] = style.Colors[ImGuiCol_WindowBg].w;
+		FrameRender(wd, nullptr);
+		FramePresent(wd);
+
+		glfwShowWindow(m_WindowHandle);
 	}
 
 	void Application::Shutdown()
@@ -853,7 +925,7 @@ namespace Walnut {
 		m_Running = true;
 
 		ImGui_ImplVulkanH_Window* wd = &g_MainWindowData;
-		ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
+		ImVec4 clear_color = ImVec4(1.0f, 0.0f, 0.0f, 1.00f);
 		ImGuiIO& io = ImGui::GetIO();
 
 		// Main loop
