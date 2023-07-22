@@ -14,6 +14,13 @@
 #include "imgui.h"
 #include "vulkan/vulkan.h"
 
+#if defined(WL_PLATFORM_WINDOWS) && !defined(WL_HEADLESS)
+
+#include <Windows.h>
+
+#endif
+
+
 void check_vk_result(VkResult err);
 
 struct GLFWwindow;
@@ -84,6 +91,23 @@ namespace Walnut {
 		{
 			m_EventQueue.push(func);
 		}
+
+		void SetKeyCallback(std::function<void(int, int, int, int)> func) { m_KeyCallback = func; };
+		void ResetKeyCallback() { m_KeyCallback = nullptr; };
+		void SetMouseButtonCallback(std::function<void(int, int, int)> func) { m_MouseButtonCallback = func; };
+		void ResetMouseButtonCallback() { m_MouseButtonCallback = nullptr; };
+
+		std::function<void(int, int, int, int)> GetKeyCallback() { return m_KeyCallback; };
+		std::function<void(int, int, int)> GetMouseButtonCallback() { return m_MouseButtonCallback; };
+
+#if defined(WL_PLATFORM_WINDOWS) && !defined(WL_HEADLESS)
+
+		void SetRawInputCallback(std::function<void(RAWINPUT*)> func) { m_RawInputCallback = func; };
+		void ResetRawInputCallback() { m_RawInputCallback = nullptr; };
+
+		std::function<void(RAWINPUT*)> GetRawInputCallback() { return m_RawInputCallback; };
+
+#endif
 	private:
 		void Init();
 		void Shutdown();
@@ -116,6 +140,15 @@ namespace Walnut {
 		std::shared_ptr<Walnut::Image> m_IconMinimize;
 		std::shared_ptr<Walnut::Image> m_IconMaximize;
 		std::shared_ptr<Walnut::Image> m_IconRestore;
+
+		std::function<void(int, int, int, int)> m_KeyCallback;
+		std::function<void(int, int, int)> m_MouseButtonCallback;
+
+#if defined(WL_PLATFORM_WINDOWS) && !defined(WL_HEADLESS)
+
+		std::function<void(RAWINPUT*)> m_RawInputCallback;
+
+#endif
 	};
 
 	// Implemented by CLIENT
