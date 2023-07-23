@@ -11,6 +11,7 @@
 #include <functional>
 #include <filesystem>
 
+#define IMGUI_DEFINE_MATH_OPERATORS
 #include "imgui.h"
 #include "vulkan/vulkan.h"
 

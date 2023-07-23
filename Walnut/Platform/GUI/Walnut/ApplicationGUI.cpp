@@ -778,13 +778,13 @@ namespace Walnut {
 		static float moveOffsetX;
 		static float moveOffsetY;
 		const float w = ImGui::GetContentRegionAvail().x;
-		const float buttonsAreaWidth = 94;
+		const float buttonsAreaWidth = 105.0f;
 
 		// Title bar drag area
 		// On Windows we hook into the GLFW win32 window internals
 		ImGui::SetCursorPos(ImVec2(windowPadding.x, windowPadding.y + titlebarVerticalOffset)); // Reset cursor pos
 		// DEBUG DRAG BOUNDS
-		// fgDrawList->AddRect(ImGui::GetCursorScreenPos(), ImVec2(ImGui::GetCursorScreenPos().x + w - buttonsAreaWidth, ImGui::GetCursorScreenPos().y + titlebarHeight), UI::Colors::Theme::invalidPrefab);
+		//fgDrawList->AddRect(ImGui::GetCursorScreenPos(), ImVec2(ImGui::GetCursorScreenPos().x + w - buttonsAreaWidth, ImGui::GetCursorScreenPos().y + titlebarHeight), UI::Colors::Theme::invalidPrefab);
 		ImGui::InvisibleButton("##titleBarDragZone", ImVec2(w - buttonsAreaWidth, titlebarHeight));
 
 		m_TitleBarHovered = ImGui::IsItemHovered();
@@ -829,15 +829,17 @@ namespace Walnut {
 		const float buttonWidth = 14.0f;
 		const float buttonHeight = 14.0f;
 
-		// Minimize Button
+		ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0, 0, 0, 0));
 
+		// Minimize Button
 		ImGui::Spring();
 		UI::ShiftCursorY(8.0f);
 		{
 			const int iconWidth = m_IconMinimize->GetWidth();
 			const int iconHeight = m_IconMinimize->GetHeight();
 			const float padY = (buttonHeight - (float)iconHeight) / 2.0f;
-			if (ImGui::InvisibleButton("Minimize", ImVec2(buttonWidth, buttonHeight)))
+
+			if (ImGui::Button("##Minimize", ImVec2(buttonWidth * 2, buttonHeight * 2)))
 			{
 				// TODO: move this stuff to a better place, like Window class
 				if (m_WindowHandle)
@@ -846,20 +848,27 @@ namespace Walnut {
 				}
 			}
 
-			UI::DrawButtonImage(m_IconMinimize, buttonColN, buttonColH, buttonColP, UI::RectExpanded(UI::GetItemRect(), 0.0f, -padY));
+			ImRect minRect = UI::GetItemRect();
+			minRect.Min.x += buttonWidth * 0.5;
+			minRect.Min.y += buttonHeight * 0.5;
+			minRect.Max.x -= buttonWidth * 0.5;
+			minRect.Max.y -= buttonHeight * 0.5;
+
+			UI::DrawButtonImage(m_IconMinimize, buttonColN, buttonColH, buttonColP, UI::RectExpanded(minRect, 0.0f, -padY));
 		}
 
 
 		// Maximize Button
-		ImGui::Spring(-1.0f, 17.0f);
+		ImGui::Spring();
 		UI::ShiftCursorY(8.0f);
 		{
 			const int iconWidth = m_IconMaximize->GetWidth();
 			const int iconHeight = m_IconMaximize->GetHeight();
+			const float padY = (buttonHeight - (float)iconHeight) / 2.0f;
 
 			const bool isMaximized = IsMaximized();
 
-			if (ImGui::InvisibleButton("Maximize", ImVec2(buttonWidth, buttonHeight)))
+			if (ImGui::Button("##Maximize", ImVec2(buttonWidth * 2, buttonHeight * 2)))
 			{
 				Application::Get().QueueEvent([isMaximized, windowHandle = m_WindowHandle]()
 				{
@@ -870,20 +879,36 @@ namespace Walnut {
 				});
 			}
 
-			UI::DrawButtonImage(isMaximized ? m_IconRestore : m_IconMaximize, buttonColN, buttonColH, buttonColP);
+			ImRect maxRect = UI::GetItemRect();
+			maxRect.Min.x += buttonWidth * 0.5;
+			maxRect.Min.y += buttonHeight * 0.5;
+			maxRect.Max.x -= buttonWidth * 0.5;
+			maxRect.Max.y -= buttonHeight * 0.5;
+
+			UI::DrawButtonImage(isMaximized ? m_IconRestore : m_IconMaximize, buttonColN, buttonColH, buttonColP, UI::RectExpanded(maxRect, 0.0f, -padY));
 		}
 
 		// Close Button
-		ImGui::Spring(-1.0f, 15.0f);
+		ImGui::Spring();
 		UI::ShiftCursorY(8.0f);
 		{
 			const int iconWidth = m_IconClose->GetWidth();
 			const int iconHeight = m_IconClose->GetHeight();
-			if (ImGui::InvisibleButton("Close", ImVec2(buttonWidth, buttonHeight)))
+			const float padY = (buttonHeight - (float)iconHeight) / 2.0f;
+
+			if (ImGui::Button("##Close", ImVec2(buttonWidth * 2, buttonHeight * 2)))
 				Application::Get().Close();
 
-			UI::DrawButtonImage(m_IconClose, UI::Colors::Theme::text, UI::Colors::ColorWithMultipliedValue(UI::Colors::Theme::text, 1.4f), buttonColP);
+			ImRect closeRect = UI::GetItemRect();
+			closeRect.Min.x += buttonWidth * 0.5;
+			closeRect.Min.y += buttonHeight * 0.5;
+			closeRect.Max.x -= buttonWidth * 0.5;
+			closeRect.Max.y -= buttonHeight * 0.5;
+
+			UI::DrawButtonImage(m_IconClose, UI::Colors::Theme::text, UI::Colors::ColorWithMultipliedValue(UI::Colors::Theme::text, 1.4f), buttonColP, UI::RectExpanded(closeRect, 0.0f, -padY));
 		}
+
+		ImGui::PopStyleColor();
 
 		ImGui::Spring(-1.0f, 18.0f);
 		ImGui::EndHorizontal();
