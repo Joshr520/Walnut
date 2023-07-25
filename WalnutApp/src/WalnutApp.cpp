@@ -1,7 +1,6 @@
 #include "Walnut/Application.h"
 #include "Walnut/EntryPoint.h"
 
-#include "Walnut/Image.h"
 #include "Walnut/UI/UI.h"
 
 class ExampleLayer : public Walnut::Layer
@@ -60,6 +59,8 @@ Walnut::Application* Walnut::CreateApplication(int argc, char** argv)
 {
 	Walnut::ApplicationSpecification spec;
 	spec.Name = "Walnut Example";
+	spec.IconPath = "Icon.png";
+	spec.AppHeaderIconPath = "Icon.png";
 	spec.CustomTitlebar = true;
 	spec.CenterWindow = true;
 

@@ -662,10 +662,15 @@ namespace Walnut {
 
 		// Load images
 		{
-			uint32_t w, h;
-			void* data = Image::Decode(g_WalnutIcon, sizeof(g_WalnutIcon), w, h);
-			m_AppHeaderIcon = std::make_shared<Walnut::Image>(w, h, ImageFormat::RGBA, data);
-			free(data);
+			if (m_Specification.AppHeaderIconPath.empty())
+			{
+				uint32_t w, h;
+				void* data = Image::Decode(g_WalnutIcon, sizeof(g_WalnutIcon), w, h);
+				m_AppHeaderIcon = std::make_shared<Walnut::Image>(w, h, ImageFormat::RGBA, data);
+				free(data);
+			}
+			else
+				m_AppHeaderIcon = std::make_shared<Walnut::Image>(m_Specification.AppHeaderIconPath.string());
 		}
 		{
 			uint32_t w, h;
