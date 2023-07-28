@@ -42,6 +42,7 @@ namespace Walnut {
 		// Uses custom Walnut titlebar instead
 		// of Windows default
 		bool CustomTitlebar = false;
+		std::function<void(float&)> CustomTitlebarFunc = nullptr;
 
 		// Window will be created in the center
 		// of primary monitor
@@ -55,6 +56,8 @@ namespace Walnut {
 		~Application();
 
 		static Application& Get();
+
+		const ApplicationSpecification& GetAppSpec() const { return m_Specification; }
 
 		void Run();
 		void SetMenubarCallback(const std::function<void()>& menubarCallback) { m_MenubarCallback = menubarCallback; }
@@ -72,9 +75,14 @@ namespace Walnut {
 
 		bool IsMaximized() const;
 		std::shared_ptr<Image> GetApplicationIcon() const { return m_AppHeaderIcon; }
+		std::shared_ptr<Image> GetApplicationIconClose() const { return m_IconClose; }
+		std::shared_ptr<Image> GetApplicationIconMinimize() const { return m_IconMinimize; }
+		std::shared_ptr<Image> GetApplicationIconMaximize() const { return m_IconMaximize; }
+		std::shared_ptr<Image> GetApplicationIconRestore() const { return m_IconRestore; }
 
 		float GetTime();
 		GLFWwindow* GetWindowHandle() const { return m_WindowHandle; }
+		void SetTitleBarHovered(bool hovered) { m_TitleBarHovered = hovered; }
 		bool IsTitleBarHovered() const { return m_TitleBarHovered; }
 
 		static VkInstance GetInstance();
