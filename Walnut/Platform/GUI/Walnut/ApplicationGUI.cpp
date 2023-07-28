@@ -444,6 +444,8 @@ namespace Walnut {
 #include "Walnut/Embed/Walnut-Icon.embed"
 #include "Walnut/Embed/WindowImages.embed"
 
+	const float titlebarHeight = 58.0f;
+
 	Application::Application(const ApplicationSpecification& specification)
 		: m_Specification(specification)
 	{
@@ -766,7 +768,6 @@ namespace Walnut {
 
 	void Application::UI_DrawTitlebar(float& outTitlebarHeight)
 	{
-		const float titlebarHeight = 58.0f;
 		const bool isMaximized = IsMaximized();
 		float titlebarVerticalOffset = isMaximized ? -6.0f : 0.0f;
 		const ImVec2 windowPadding = ImGui::GetCurrentWindow()->WindowPadding;
@@ -941,7 +942,7 @@ namespace Walnut {
 
 		if (m_Specification.CustomTitlebar)
 		{
-			const ImRect menuBarRect = { ImGui::GetCursorPos(), { ImGui::GetContentRegionAvail().x + ImGui::GetCursorScreenPos().x, ImGui::GetFrameHeightWithSpacing() } };
+			const ImRect menuBarRect = { ImGui::GetCursorPos(), { ImGui::GetContentRegionAvail().x + ImGui::GetCursorScreenPos().x, titlebarHeight - ImGui::GetStyle().ItemSpacing.y }};
 
 			ImGui::BeginGroup();
 			if (UI::BeginMenubar(menuBarRect))
