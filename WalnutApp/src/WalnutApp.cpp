@@ -3,6 +3,8 @@
 
 #include "Walnut/UI/UI.h"
 
+#include "../Icon.embed"
+
 class ExampleLayer : public Walnut::Layer
 {
 public:
@@ -55,12 +57,14 @@ private:
 	bool m_AboutModalOpen = false;
 };
 
+#define ARRAY_SIZE(x) (sizeof((x)) / sizeof((x)[0]))
+
 Walnut::Application* Walnut::CreateApplication(int argc, char** argv)
 {
 	Walnut::ApplicationSpecification spec;
 	spec.Name = "Walnut Example";
-	spec.IconPath = "Icon.png";
-	spec.AppHeaderIconPath = "Icon.png";
+	spec.IconData = g_AppIcon;
+	//spec.IconPath = "Icon.png";
 	spec.CustomTitlebar = true;
 	spec.CenterWindow = true;
 
