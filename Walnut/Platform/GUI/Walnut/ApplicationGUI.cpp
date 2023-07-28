@@ -1047,11 +1047,9 @@ namespace Walnut {
 				if (m_Specification.CustomTitlebar)
 				{
 					float titleBarHeight;
-					if (m_Specification.CustomTitlebarFunc)
-						m_Specification.CustomTitlebarFunc(titleBarHeight);
-					else
-						UI_DrawTitlebar(titleBarHeight);
+					UI_DrawTitlebar(titleBarHeight);
 					ImGui::SetCursorPosY(titleBarHeight);
+
 				}
 
 				// Dockspace
