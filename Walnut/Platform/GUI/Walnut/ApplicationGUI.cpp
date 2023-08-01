@@ -466,6 +466,12 @@ namespace Walnut {
 		return *s_Instance;
 	}
 
+	void Application::SetAppName(std::string_view name)
+	{
+		m_Specification.Name = name;
+		glfwSetWindowTitle(m_WindowHandle, name.data());
+	}
+
 	void Application::Init()
 	{
 		// Intialize logging

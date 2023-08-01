@@ -57,6 +57,8 @@ namespace Walnut {
 
 		static Application& Get();
 
+		void SetAppName(std::string_view name);
+
 		void Run();
 		void SetMenubarCallback(const std::function<void()>& menubarCallback) { m_MenubarCallback = menubarCallback; }
 
