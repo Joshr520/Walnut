@@ -719,14 +719,14 @@ namespace Walnut {
 		}
 
 		// Set darker clear color and show window later to not flashbang users
+		glfwShowWindow(m_WindowHandle);
+
 		wd->ClearValue.color.float32[0] = style.Colors[ImGuiCol_WindowBg].x * style.Colors[ImGuiCol_WindowBg].w;
 		wd->ClearValue.color.float32[1] = style.Colors[ImGuiCol_WindowBg].y * style.Colors[ImGuiCol_WindowBg].w;
 		wd->ClearValue.color.float32[2] = style.Colors[ImGuiCol_WindowBg].z * style.Colors[ImGuiCol_WindowBg].w;
 		wd->ClearValue.color.float32[3] = style.Colors[ImGuiCol_WindowBg].w;
 		FrameRender(wd, nullptr);
 		FramePresent(wd);
-
-		glfwShowWindow(m_WindowHandle);
 	}
 
 	void Application::Shutdown()
