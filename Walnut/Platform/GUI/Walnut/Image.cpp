@@ -8,8 +8,6 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 
-std::mutex imageLock;
-
 namespace Walnut {
 
 	namespace Utils {
@@ -49,6 +47,7 @@ namespace Walnut {
 
 	}
 
+	std::mutex imageLock;
 	Image::Image(std::string_view path)
 		: m_Filepath(path)
 	{
@@ -69,10 +68,9 @@ namespace Walnut {
 		m_Width = width;
 		m_Height = height;
 		
-		std::unique_lock<std::mutex> lock(imageLock);
+		std::lock_guard<std::mutex> lock(imageLock);
 		AllocateMemory(m_Width * m_Height * Utils::BytesPerPixel(m_Format));
 		SetData(data);
-		imageLock.unlock();
 		stbi_image_free(data);
 	}
 
