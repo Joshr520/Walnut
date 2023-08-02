@@ -4,6 +4,7 @@
 #include "Walnut/UI/UI.h"
 
 #include "../Icon.embed"
+#include "../Font.embed"
 
 class ExampleLayer : public Walnut::Layer
 {
@@ -12,6 +13,7 @@ public:
 	{
 		ImGui::Begin("Hello");
 		ImGui::Button("Button");
+		ImGui::Text("\xEE\xA8\x8A" " Example icon font");
 		ImGui::End();
 
 		ImGui::ShowDemoWindow();
@@ -64,6 +66,7 @@ Walnut::Application* Walnut::CreateApplication(int argc, char** argv)
 	Walnut::ApplicationSpecification spec;
 	spec.Name = "Walnut Example";
 	spec.IconData = g_AppIcon;
+	spec.FontIcon = { (void*)g_IcoMoonTTF, sizeof(g_IcoMoonTTF), 16.0f, 0xE900, 0xEAEA};
 	//spec.IconPath = "Icon.png";
 	spec.CustomTitlebar = true;
 	spec.CenterWindow = true;

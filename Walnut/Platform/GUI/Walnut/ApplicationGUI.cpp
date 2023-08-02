@@ -642,6 +642,13 @@ namespace Walnut {
 		ImFontConfig fontConfig;
 		fontConfig.FontDataOwnedByAtlas = false;
 		ImFont* robotoFont = io.Fonts->AddFontFromMemoryTTF((void*)g_RobotoRegular, sizeof(g_RobotoRegular), 20.0f, &fontConfig);
+		AppSpecFontIcon fontIcon = m_Specification.FontIcon;
+		if (fontIcon.FontData && fontIcon.FontSize && fontIcon.RangeMin && fontIcon.RangeMax)
+		{
+			ImFontConfig iconsConfig; iconsConfig.MergeMode = true; iconsConfig.PixelSnapH = true; iconsConfig.FontDataOwnedByAtlas = false;
+			static const ImWchar iconsRanges[] = { fontIcon.RangeMin, fontIcon.RangeMax, 0 };
+			io.Fonts->AddFontFromMemoryTTF((void*)fontIcon.FontData, fontIcon.FontCapacity, fontIcon.FontSize, &iconsConfig, iconsRanges);
+		}
 		s_Fonts["Default"] = robotoFont;
 		s_Fonts["Bold"] = io.Fonts->AddFontFromMemoryTTF((void*)g_RobotoBold, sizeof(g_RobotoBold), 20.0f, &fontConfig);
 		s_Fonts["Italic"] = io.Fonts->AddFontFromMemoryTTF((void*)g_RobotoItalic, sizeof(g_RobotoItalic), 20.0f, &fontConfig);

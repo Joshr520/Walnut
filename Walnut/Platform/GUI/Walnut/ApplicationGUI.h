@@ -28,6 +28,15 @@ struct GLFWwindow;
 
 namespace Walnut {
 
+	struct AppSpecFontIcon
+	{
+		void* FontData;
+		int FontCapacity;
+		float FontSize;
+		unsigned short RangeMin;
+		unsigned short RangeMax;
+	};
+
 	struct ApplicationSpecification
 	{
 		std::string Name = "Walnut App";
@@ -35,8 +44,9 @@ namespace Walnut {
 		uint32_t Height = 900;
 
 		std::filesystem::path IconPath;
-
 		std::vector<uint8_t> IconData;
+
+		AppSpecFontIcon FontIcon;
 
 		bool WindowResizeable = true;
 
