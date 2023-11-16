@@ -46,7 +46,7 @@ namespace Walnut {
 		std::filesystem::path IconPath;
 		std::vector<uint8_t> IconData;
 
-		AppSpecFontIcon FontIcon;
+		AppSpecFontIcon FontIcon = { };
 
 		bool WindowResizeable = true;
 
