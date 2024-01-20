@@ -310,7 +310,7 @@ static void FrameRender(ImGui_ImplVulkanH_Window* wd, ImDrawData* draw_data)
 		err = vkResetFences(g_Device, 1, &fd->Fence);
 		check_vk_result(err);
 	}
-	
+
 	{
 		// Free resources in queue
 		for (auto& func : s_ResourceFreeQueue[s_CurrentFrameIndex])
@@ -543,7 +543,7 @@ namespace Walnut {
 			std::cerr << "GLFW: Vulkan not supported!\n";
 			return;
 		}
-		
+
 		// Set icon
 		GLFWimage icon;
 		int channels;
@@ -791,6 +791,7 @@ namespace Walnut {
 									 ImGui::GetCursorScreenPos().y + titlebarHeight };
 		auto* bgDrawList = ImGui::GetBackgroundDrawList();
 		auto* fgDrawList = ImGui::GetForegroundDrawList();
+		auto* drawList = ImGui::GetWindowDrawList();
 		bgDrawList->AddRectFilled(titlebarMin, titlebarMax, UI::Colors::Theme::titlebar);
 		// DEBUG TITLEBAR BOUNDS
 		// fgDrawList->AddRect(titlebarMin, titlebarMax, UI::Colors::Theme::invalidPrefab);
@@ -802,7 +803,7 @@ namespace Walnut {
 			const ImVec2 logoOffset(16.0f + windowPadding.x, 5.0f + windowPadding.y + titlebarVerticalOffset);
 			const ImVec2 logoRectStart = { ImGui::GetItemRectMin().x + logoOffset.x, ImGui::GetItemRectMin().y + logoOffset.y };
 			const ImVec2 logoRectMax = { logoRectStart.x + logoWidth, logoRectStart.y + logoHeight };
-			fgDrawList->AddImage(m_AppHeaderIcon->GetDescriptorSet(), logoRectStart, logoRectMax);
+			drawList->AddImage(m_AppHeaderIcon->GetDescriptorSet(), logoRectStart, logoRectMax);
 		}
 
 		ImGui::BeginHorizontal("Titlebar", { ImGui::GetWindowWidth() - windowPadding.y * 2.0f, ImGui::GetFrameHeightWithSpacing() });
@@ -1070,7 +1071,7 @@ namespace Walnut {
 
 					ImGui::PopStyleColor(); // ImGuiCol_Border
 				}
-				
+
 				if (m_Specification.CustomTitlebar)
 				{
 					float titleBarHeight;
